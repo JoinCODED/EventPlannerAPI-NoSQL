@@ -7,6 +7,7 @@ const {
   eventUpdate,
   eventFullFetch,
   eventListSearch,
+  eventPaginatedFetch,
 } = require("./controllers");
 
 const router = express.Router();
@@ -18,6 +19,8 @@ router.get("/", eventListFetch);
 router.get("/full", eventFullFetch);
 
 router.get("/search/:query", eventListSearch);
+
+router.get("/pagination", eventPaginatedFetch);
 
 router.get("/:eventId", eventDetailFetch);
 

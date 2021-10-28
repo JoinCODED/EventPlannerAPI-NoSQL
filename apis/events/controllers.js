@@ -3,10 +3,6 @@ const Event = require("../../db/models/Event");
 exports.eventCreate = async (req, res, next) => {
   try {
     const newEvent = await Event.create(req.body);
-    console.log(
-      "🚀 ~ file: controllers.js ~ line 6 ~ exports.eventCreate= ~ newEvent",
-      newEvent
-    );
     res.status(201).json(newEvent);
   } catch (error) {
     next(error);
@@ -28,6 +24,38 @@ exports.eventListFetch = async (req, res, next) => {
         sort: { startDate: "asc", name: "asc" },
       }
     );
+    res.json(events);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.eventFullFetch = async (req, res, next) => {
+  try {
+    const events = await Event.find({
+      $expr: { $eq: ["$numOfSeats", "$bookedSeats"] },
+    });
+    res.json(events);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.eventListSearch = async (req, res, next) => {
+  try {
+    const events = await Event.find({
+      name: { $regex: req.params.query, $options: "i" },
+    });
+    res.json(events);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.eventPaginatedFetch = async (req, res, next) => {
+  try {
+    //   Inside req.body => { skip: 2, limit: 2 }
+    const events = await Event.find({}, null, req.body);
     res.json(events);
   } catch (error) {
     next(error);
@@ -69,28 +97,6 @@ exports.eventDelete = async (req, res, next) => {
       await Event.deleteMany({ _id: { $in: req.body } });
       res.status(204).end();
     }
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.eventFullFetch = async (req, res, next) => {
-  try {
-    const events = await Event.find({
-      $expr: { $eq: ["$numOfSeats", "$bookedSeats"] },
-    });
-    res.json(events);
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.eventListSearch = async (req, res, next) => {
-  try {
-    const events = await Event.find({
-      name: { $regex: req.params.query, $options: "i" },
-    });
-    res.json(events);
   } catch (error) {
     next(error);
   }
