@@ -37,8 +37,7 @@ const EventSchema = mongoose.Schema({
     default: 0,
     // validate: [
     //   (value) => {
-
-    //     return this.numOfSeats >= value;
+    //     return this.numOfSeats < value;
     //   },
     //   "Booked seats can't be greater than the number of available seats",
     // ],
@@ -53,6 +52,24 @@ const EventSchema = mongoose.Schema({
   endDate: {
     type: Date,
   },
+});
+
+EventSchema.pre("validate", function (next) {
+  if (this.numOfSeats <= this.bookedSeats) {
+    this.invalidate(
+      "bookedSeats",
+      "Booked seats limit exceeded!",
+      this.bookedSeats
+    );
+  }
+  if (this.endDate < this.startDate) {
+    this.invalidate(
+      "endDate",
+      "The event can't end before it starts",
+      this.endDate
+    );
+  }
+  next();
 });
 
 module.exports = mongoose.model("Event", EventSchema);

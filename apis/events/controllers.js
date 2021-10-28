@@ -3,6 +3,10 @@ const Event = require("../../db/models/Event");
 exports.eventCreate = async (req, res, next) => {
   try {
     const newEvent = await Event.create(req.body);
+    console.log(
+      "🚀 ~ file: controllers.js ~ line 6 ~ exports.eventCreate= ~ newEvent",
+      newEvent
+    );
     res.status(201).json(newEvent);
   } catch (error) {
     next(error);
@@ -18,7 +22,7 @@ exports.eventListFetch = async (req, res, next) => {
         name: true,
         image: true,
         startDate: true,
-        numOfSeats: true,
+        // numOfSeats: true,
       },
       {
         sort: { startDate: "asc", name: "asc" },
