@@ -13,7 +13,13 @@ exports.eventListFetch = async (req, res, next) => {
   try {
     const events = await Event.find(
       {},
-      { __id: true, name: true, image: true, startDate: true },
+      {
+        __id: true,
+        name: true,
+        image: true,
+        startDate: true,
+        numOfSeats: true,
+      },
       {
         sort: { startDate: "asc", name: "asc" },
       }
@@ -48,12 +54,39 @@ exports.eventUpdate = async (req, res, next) => {
 
 exports.eventDelete = async (req, res, next) => {
   try {
-    const product = await Event.findByIdAndDelete(req.params.eventId);
-    if (product) {
-      res.status(204).end();
+    if (req.params.eventId) {
+      const product = await Event.findByIdAndDelete(req.params.eventId);
+      if (product) {
+        res.status(204).end();
+      } else {
+        next({ status: 404, message: "Event Not Found" });
+      }
     } else {
-      next({ status: 404, message: "Event Not Found" });
+      await Event.deleteMany({ _id: { $in: req.body } });
+      res.status(204).end();
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.eventFullFetch = async (req, res, next) => {
+  try {
+    const events = await Event.find({
+      $expr: { $eq: ["$numOfSeats", "$bookedSeats"] },
+    });
+    res.json(events);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.eventListSearch = async (req, res, next) => {
+  try {
+    const events = await Event.find({
+      name: { $regex: req.params.query, $options: "i" },
+    });
+    res.json(events);
   } catch (error) {
     next(error);
   }
