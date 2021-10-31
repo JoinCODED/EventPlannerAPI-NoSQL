@@ -94,7 +94,7 @@ exports.eventDelete = async (req, res, next) => {
         next({ status: 404, message: "Event Not Found" });
       }
     } else {
-      await Event.deleteMany({ _id: { $in: req.body } });
+      await Event.deleteMany(req.body);
       res.status(204).end();
     }
   } catch (error) {
